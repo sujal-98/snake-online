@@ -33,6 +33,7 @@ function gameState() {
     }],
     food: {},
     gridsize: grid_size,
+    active:true
   };
 }
 
@@ -42,6 +43,7 @@ function gameLoop(state) {
   }
 
   const player1 = state.players[0];
+  const player2 = state.players[1];
 
   player1.pos.x += player1.vel.x;
   player1.pos.y += player1.vel.y;
@@ -50,10 +52,20 @@ function gameLoop(state) {
     return 2;
   }
 
+  if (player2.pos.x < 0 || player2.pos.x >= grid_size || player2.pos.y < 0 || player2.pos.y >= grid_size) {
+    return 1;
+  }
+
   if (state.food.x === player1.pos.x && state.food.y === player1.pos.y) {
     player1.snake.push({ ...player1.pos });
     player1.pos.x += player1.vel.x;
     player1.pos.y += player1.vel.y;
+    randomfood(state);
+  }
+  if (state.food.x === player2.pos.x && state.food.y === player2.pos.y) {
+    player2.snake.push({ ...player2.pos });
+    player2.pos.x += player2.vel.x;
+    player2.pos.y += player2.vel.y;
     randomfood(state);
   }
 
@@ -64,7 +76,16 @@ function gameLoop(state) {
       }
     }
     player1.snake.push({ ...player1.pos });
-    player1.snake.shift(); // Properly shift the snake's body
+    player1.snake.shift(); // Properly shift the first snake's body
+  }
+  if (player2.vel.x || player2.vel.y) {
+    for (let cell of player2.snake) {
+      if (cell.x === player2.pos.x && cell.y === player2.pos.y) {
+        return 1;
+      }
+    }
+    player2.snake.push({ ...player2.pos });
+    player2.snake.shift(); // Properly shift the second snake's body
   }
 
   return false;

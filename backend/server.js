@@ -88,25 +88,29 @@ function emitgameover(roomname,state){
 }
 
 function handleKeyDown(keyCode, player) {
+  const name=rooms[client.id]
+  if(!name){
+    return;
+  }
   switch (keyCode) {
     case 37: // left
       if (player.vel.x === 0) {
-        player.vel = { x: -1, y: 0 };
+        state[name].players[client.number-1].vel= { x: -1, y: 0 };
       }
       break;
     case 38: // up
       if (player.vel.y === 0) {
-        player.vel = { x: 0, y: -1 };
+        state[name].players[client.number-1].vel= { x: -1, y: -1 };
       }
       break;
     case 39: // right
       if (player.vel.x === 0) {
-        player.vel = { x: 1, y: 0 };
+        state[name].players[client.number-1].vel= { x: 1, y: 0 };
       }
       break;
     case 40: // down
       if (player.vel.y === 0) {
-        player.vel = { x: 0, y: 1 };
+        state[name].players[client.number-1].vel= { x: 0, y: 1 };
       }
       break;
   }
