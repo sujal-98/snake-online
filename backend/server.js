@@ -24,45 +24,93 @@ io.on('connection', (client) => {
   console.log('Client connected');
 
   client.on('keydown', (keyCode) => {
-    handleKeyDown(keyCode, game.players[0]);
+    handleKeyDown(keyCode, handleKeyDown(keyCode));
   });
-  client.on('newgame',handleNewGame)
+  client.on('newGame',handleNewGame)
+  client.on('joinGame', handleJoinGame)
 
-function handleJoinGame(){
-  const r=io.sockets.adapter.rooms[gameCode]
-  let allusers;
-  if(r){
-  allusers=r.sockets
+  function handleJoinGame(roomname) {
+    console.log("joined")
+    console.log(roomname)
+    console.log(rooms)
+    console.log(state)
+    const room =  io.sockets.adapter.rooms.get(roomname);
+    console.log(room)
+    
+    let allUsers;
+    if (room) {
+      allUsers = [...room];
+      console.log(allUsers)
+    }
+
+    let numClients = 0;
+    if (allUsers) {
+      numClients = Object.keys(allUsers).length;
+      console.log(numClients)
+    }
+
+    if (numClients === 0) {
+      client.emit('unknownCode');
+      return;
+    } else if (numClients > 1) {
+      client.emit('tooManyPlayers');
+      return;
+    }
+    client.emit('gameCode',roomname)
+    rooms[client.id] = roomname;
+
+    client.join(roomname);
+    client.number = 2;
+    console.log(client.number)
+    client.emit('init', 2);
+    
+    startGame(roomname);
   }
-  let num=0;
-  if(allusers){
-    num=Object.keys(allusers).length
-  }
-  if(num==0){
-    client.emit('unknown')
-    return
-  }
-  else if(num>1){
-    client.emit('toomany')
-    return
-  }
-  else{
-    rooms[client.id]=gameCode
-    client.number=2
-    client.emit('init',2)
-    startGame(gameCode)
-  }}
-  
+
 
   function handleNewGame(){
     let roomname=makeid(5)
     rooms[client.id]=roomname
     client.emit('gameCode',roomname)
     state[roomname]=initGame()
+    console.log(roomname)
     client.join(roomname)
     client.number=1
     client.emit('init',1)
+    console.log(rooms[client.id])
+    console.log(rooms)
+    console.log(state)
+
   }
+  
+function handleKeyDown(keyCode) {
+  const name=rooms[client.id]
+  if(!name){
+    return;
+  }
+  switch (keyCode) {
+    case 37: // left
+      if (state[name].players[client.number-1].vel.x === 0) {
+        state[name].players[client.number-1].vel= { x: -1, y: 0 };
+      }
+      break;
+    case 38: // up
+      if (state[name].players[client.number-1].vel.y === 0) {
+        state[name].players[client.number-1].vel= { x: 0, y: -1 };
+      }
+      break;
+    case 39: // right
+      if (state[name].players[client.number-1].vel.x === 0) {
+        state[name].players[client.number-1].vel= { x: 1, y: 0 };
+      }
+      break;
+    case 40: // down
+      if (state[name].players[client.number-1].vel.y === 0) {
+        state[name].players[client.number-1].vel= { x: 0, y: 1 };
+      }
+      break;
+  }
+}
 
 });
 
@@ -83,38 +131,11 @@ function emitgamestate(roomname,state){
   io.sockets.in(roomname).emit('gameState',JSON.stringify(state))
 }
 
-function emitgameover(roomname,state){
-  io.sockets.in(roomname).emit('gameover',JSON.stringify({winner}))
+function emitgameover(roomname,winner){
+  console.log(winner)
+  io.sockets.in(roomname).emit('gameOver',JSON.stringify(winner))
 }
 
-function handleKeyDown(keyCode, player) {
-  const name=rooms[client.id]
-  if(!name){
-    return;
-  }
-  switch (keyCode) {
-    case 37: // left
-      if (player.vel.x === 0) {
-        state[name].players[client.number-1].vel= { x: -1, y: 0 };
-      }
-      break;
-    case 38: // up
-      if (player.vel.y === 0) {
-        state[name].players[client.number-1].vel= { x: -1, y: -1 };
-      }
-      break;
-    case 39: // right
-      if (player.vel.x === 0) {
-        state[name].players[client.number-1].vel= { x: 1, y: 0 };
-      }
-      break;
-    case 40: // down
-      if (player.vel.y === 0) {
-        state[name].players[client.number-1].vel= { x: 0, y: 1 };
-      }
-      break;
-  }
-}
 
 const PORT = process.env.PORT || 5501;
 

@@ -22,7 +22,7 @@ function gameState() {
         y: 10,
       },
       vel: {
-        x: 0,
+        x: -1,
         y: 0,
       },
       snake: [
@@ -47,6 +47,9 @@ function gameLoop(state) {
 
   player1.pos.x += player1.vel.x;
   player1.pos.y += player1.vel.y;
+
+  player2.pos.x += player2.vel.x;
+  player2.pos.y += player2.vel.y;
 
   if (player1.pos.x < 0 || player1.pos.x >= grid_size || player1.pos.y < 0 || player1.pos.y >= grid_size) {
     return 2;

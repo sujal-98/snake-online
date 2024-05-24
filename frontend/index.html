@@ -58,18 +58,26 @@
     socket.on('gameOver', (data) => {
       data = JSON.parse(data);
       if (!gameActive) {
+        console.log("hmm?")
         return;
       }
-      if (data.winner === playerNumber) {
+      if (data === playerNumber) {
+        console.log("yes")
         alert("You win!");
       } else {
+        console.log("yessss")
+
         alert("You lose");
-        gameActive = false;
+        
       }
+      gameActive = false;
     });
 
     socket.on('unknown', handleUnknown);
+    socket.on('gameCode', handleDisplay);
+
     socket.on('toomany', handleTooMany);
+    socket.on('init',handleInit)
 
     let canvas, ctx, state, playerNumber;
     let gameActive = false;
@@ -105,6 +113,11 @@
       gameActive = false;
     }
 
+    function handleInit(number) {
+  playerNumber = number;
+}
+
+
     function createGame() {
       socket.emit('newGame');
       init();
@@ -112,6 +125,7 @@
 
     function joinGame() {
       const code = gameCodeInput.value;
+      console.log(code)
       socket.emit('joinGame', code);
       init();
     }
