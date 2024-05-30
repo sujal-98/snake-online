@@ -28,6 +28,19 @@ io.on('connection', (client) => {
   });
   client.on('newGame',handleNewGame)
   client.on('joinGame', handleJoinGame)
+  client.on('restartGame',handleRestart)
+
+  function handleRestart(){
+    const roomname = rooms[client.id];
+    console.log(roomname)
+    if (!roomname) {
+      return;
+    }
+    state[roomname] = initGame();
+    io.sockets.in(roomname).emit('initGame', state[roomname]);
+    console.log("game restarted")
+    startGame(roomname);
+  }
 
   function handleJoinGame(roomname) {
     console.log("joined")
@@ -132,7 +145,6 @@ function emitgamestate(roomname,state){
 }
 
 function emitgameover(roomname,winner){
-  console.log(winner)
   io.sockets.in(roomname).emit('gameOver',JSON.stringify(winner))
 }
 
