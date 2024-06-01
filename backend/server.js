@@ -37,7 +37,7 @@ io.on('connection', (client) => {
       return;
     }
     state[roomname] = initGame();
-    io.sockets.in(roomname).emit('initGame', state[roomname]);
+    io.sockets.in(roomname).emit('initGame',state[roomname])
     console.log("game restarted")
     startGame(roomname);
   }
@@ -58,7 +58,7 @@ io.on('connection', (client) => {
 
     let numClients = 0;
     if (allUsers) {
-      numClients = Object.keys(allUsers).length;
+      numClients = allUsers.length;
       console.log(numClients)
     }
 

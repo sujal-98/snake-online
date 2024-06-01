@@ -69,7 +69,13 @@
 
     socket.on('toomany', handleTooMany);
     socket.on('init',handleInit)
+    socket.on('initGame', (state) => {
+      handleState(state);
+      gameActive = true;
+      rest.style.display='none'
+    });
 
+    
     let canvas, ctx, state, playerNumber;
     let gameActive = false;
     const initial = document.getElementById('initialScreen');
@@ -79,6 +85,8 @@
     const gameScreen = document.getElementById('gameScreen');
     const codeDisplay = document.getElementById('gameCodeDisplay');
     const rest = document.getElementById('restart');
+
+
 
     newButton.addEventListener('click', createGame);
     joinButton.addEventListener('click', joinGame);
